@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: routing-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eventmesh
+    username: postgres
+    password: postgres
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+  logging:
+    level:
+      org:
+        hibernate:
+          SQL: DEBUG
+          type: TRACE
+
+  kafka:
+    bootstrap-servers: localhost:9092
