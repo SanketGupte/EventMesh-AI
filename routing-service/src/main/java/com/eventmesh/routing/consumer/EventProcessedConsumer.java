@@ -14,7 +14,8 @@ public class EventProcessedConsumer {
 
     @KafkaListener(
             topics = KafkaTopics.PROCESSED_EVENTS,
-            groupId = "eventmesh-routing-group"
+            groupId = "eventmesh-routing-group",
+            containerFactory = "kafkaListenerContainerFactory"
     )
     public void consume(EventDTO event){
         System.out.println("Routing Service Received Event: " + event.getEventType());

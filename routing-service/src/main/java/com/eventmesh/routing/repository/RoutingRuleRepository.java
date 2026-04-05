@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface RoutingRuleRepository extends JpaRepository<RoutingRuleEntity, Long> {
     Optional<RoutingRule> findByEventType(String eventType);
+    void deleteByEventType(String eventType);
 }

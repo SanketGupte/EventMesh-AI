@@ -10,12 +10,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RoutingService {
     private  final KafkaTemplate<String, EventDTO> kafkaTemplate;
-//    private  final RoutingService routingService;
+    private final EventLogService eventLogService;
 
     public void route(EventDTO event){
         String destinationTopic = determineTopic(event);
         System.out.println("Rounting event to: " + destinationTopic);
         kafkaTemplate.send(destinationTopic, event);
+        eventLogService.logEvent(event, destinationTopic, "ROUTED");
     }
 
     private String determineTopic(EventDTO event){

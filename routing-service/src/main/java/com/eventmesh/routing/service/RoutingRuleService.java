@@ -16,20 +16,7 @@ public class RoutingRuleService {
 
     private final RoutingRuleRepository routingRuleRepository;
 
-//    public RoutingRuleService() {
-//        RoutingRuleEntity entity = new RoutingRuleEntity();
-//        entity.setEventType("ORDER_CREATED");
-//        orderRule.setDestinationTopic("event.route.payment");
-//
-//        rules.add(orderRule);
-//    }
-
     public String getDestinationTopic(String eventType) {
-//        for(RoutingRule rule: rules){
-//            if(rule.getEventType().equals(eventType)){
-//                return rule.getDestinationTopic();
-//            }
-//        }
         return routingRuleRepository.findByEventType(eventType).map(RoutingRule::getDestinationTopic).orElse("event.route.default");
     }
 
@@ -50,6 +37,14 @@ public class RoutingRuleService {
                     dto.setDestinationTopic(entity.getDestinationTopic());
                     return dto;
                 }).collect(Collectors.toList());
+    }
+
+    public void deleteById(Long id){
+        routingRuleRepository.deleteById(id);
+    }
+
+    public void deleteByEventType(String eventType){
+        routingRuleRepository.deleteByEventType(eventType);
     }
 
 }
