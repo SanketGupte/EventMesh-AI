@@ -1,4 +1,4 @@
-package com.eventmesh.routingservice;
+package com.eventmesh;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

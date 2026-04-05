@@ -15,7 +15,8 @@ public class EventConsumer {
 
     @KafkaListener(
             topics = KafkaTopics.RAW_EVENTS,
-            groupId = "eventmesh-group"
+            groupId = "eventmesh-group",
+            containerFactory = "kafkaListenerContainerFactory"
     )
     public void consume(EventDTO event){
         System.out.println("Received Event: " + event.getEventType());
