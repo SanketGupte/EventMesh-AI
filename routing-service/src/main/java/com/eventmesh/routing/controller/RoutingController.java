@@ -28,13 +28,13 @@ public class RoutingController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteById(@PathVariable Long id){
+    public String deleteById(@PathVariable("id") Long id){
         routingRuleService.deleteById(id);
         return "Rule deleted by ID";
     }
 
     @DeleteMapping("/event/{eventType}")
-    public String deleteByEventType(@PathVariable String eventType){
+    public String deleteByEventType(@PathVariable("eventType") String eventType){
         routingRuleService.deleteByEventType(eventType);
         return "Rule deleted by Event Type";
     }
