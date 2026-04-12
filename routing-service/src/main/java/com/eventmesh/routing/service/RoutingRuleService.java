@@ -5,10 +5,9 @@ import com.eventmesh.routing.entity.RoutingRuleEntity;
 import com.eventmesh.routing.repository.RoutingRuleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-//import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,25 +15,19 @@ public class RoutingRuleService {
 
     private final RoutingRuleRepository routingRuleRepository;
 
-//    public RoutingRuleService() {
-//        RoutingRuleEntity entity = new RoutingRuleEntity();
-//        entity.setEventType("ORDER_CREATED");
-//        orderRule.setDestinationTopic("event.route.payment");
-//
-//        rules.add(orderRule);
-//    }
-
     public String getDestinationTopic(String eventType) {
-//        for(RoutingRule rule: rules){
-//            if(rule.getEventType().equals(eventType)){
-//                return rule.getDestinationTopic();
-//            }
-//        }
-        return routingRuleRepository.findByEventType(eventType).map(RoutingRule::getDestinationTopic).orElse("event.route.default");
+        return routingRuleRepository.findByEventType(eventType)
+                .map(RoutingRuleEntity::getDestinationTopic)
+                .orElseThrow(()-> new IllegalArgumentException("No routing rule found for event type: " + eventType));
     }
 
     //Add new Rule
     public void addRule(RoutingRule rule){
+        routingRuleRepository.findByEventType(rule.getEventType())
+                .ifPresent(existingRule -> {
+            throw new IllegalArgumentException("Rule already exists for event type: " + rule.getEventType());
+        });
+
         RoutingRuleEntity entity = new RoutingRuleEntity();
         entity.setEventType(rule.getEventType());
         entity.setDestinationTopic(rule.getDestinationTopic());
@@ -49,7 +42,23 @@ public class RoutingRuleService {
                     dto.setEventType(entity.getEventType());;
                     dto.setDestinationTopic(entity.getDestinationTopic());
                     return dto;
-                }).collect(Collectors.toList());
+                }).toList();
+    }
+
+    @Transactional
+    public void deleteById(Long id){
+        if(!routingRuleRepository.existsById(id)){
+            throw new IllegalArgumentException("Rule not found for id: " + id);
+        }
+        routingRuleRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteByEventType(String eventType){
+        int deleteCount = routingRuleRepository.deleteByEventType(eventType);
+        if(deleteCount == 0){
+            throw new IllegalArgumentException("No Rule found for EventType: " + eventType);
+        }
     }
 
 }

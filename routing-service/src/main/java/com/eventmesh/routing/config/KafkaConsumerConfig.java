@@ -1,29 +1,33 @@
-package com.eventmesh.ingestion.config;
+package com.eventmesh.routing.config;
 
 import com.eventmesh.common.dto.EventDTO;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 public class KafkaConsumerConfig {
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
     @Bean
     public ConsumerFactory<String, EventDTO> consumerFactory(){
-        JsonDeserializer<EventDTO> deserializer = new JsonDeserializer<>(EventDTO.class);
+        JsonDeserializer<EventDTO> deserializer = new JsonDeserializer<EventDTO>();
         deserializer.addTrustedPackages("*");
         Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "eventmesh-group-v3");
+
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "eventmesh-routing-group-v2");
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         return new DefaultKafkaConsumerFactory<>(
@@ -34,17 +38,9 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, EventDTO> kafkaListenerContainerFactory(){
+    public ConcurrentKafkaListenerContainerFactory<String, EventDTO>  kafkaListenerContainerFactory(){
         ConcurrentKafkaListenerContainerFactory<String, EventDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
-
         factory.setConsumerFactory(consumerFactory());
-        factory.setCommonErrorHandler(errorHandler());
-
         return factory;
-    }
-
-    @Bean
-    public DefaultErrorHandler errorHandler(){
-        return  new DefaultErrorHandler(new FixedBackOff(2000L, 3));
     }
 }

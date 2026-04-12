@@ -14,3 +14,7 @@ spring:
 
   kafka:
     bootstrap-servers: localhost:9092
+    consumer:
+      auto-offset-reset: latest
+      group-id: eventmesh-routing-group-v2
+      enable-auto-commit: true

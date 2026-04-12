@@ -12,7 +12,10 @@ public class RoutingRuleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String eventType;
+
+    @Column(nullable = false)
     private String destinationTopic;
 
 }

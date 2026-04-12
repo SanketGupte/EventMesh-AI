@@ -10,7 +10,7 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
 
       # Controller quorum (CRITICAL)
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@eventmesh-kafka:9093
 
       # Listeners
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
