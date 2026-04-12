@@ -31,7 +31,7 @@ public class DeadLetterConsumer {
 
         if(!retryPolicyService.canRetry(eventId)){
             log.error("Max retries reached for event: {}", eventId);
-            eventLogService.logEvent(event, "DLQ", EventStatus.FAILED_PERMANENT);
+            eventLogService.updateStatus(eventId, "DLQ", EventStatus.FAILED_PERMANENT);
             return;
         }
 
@@ -45,10 +45,10 @@ public class DeadLetterConsumer {
             log.warn("Retrying event {} attempt {}", eventId, retryPolicyService.getRetryCount(eventId));
             routingService.route(event);
             retryPolicyService.resetRetryCount(eventId);
-            eventLogService.logEvent(event, "RETRY_SUCCESS", EventStatus.RETRIED);
+            eventLogService.updateStatus(eventId, "RETRY_SUCCESS", EventStatus.RETRIED);
         }catch (Exception ex){
             log.error("Retry failed again for the event: {}", event.getEventId(), ex);
-            eventLogService.logEvent(event, "DLQ", EventStatus.FAILED_PERMANENT);
+            eventLogService.updateStatus(eventId, "DLQ", EventStatus.FAILED_PERMANENT);
         }
     }
 }

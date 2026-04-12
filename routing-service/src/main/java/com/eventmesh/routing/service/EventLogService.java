@@ -16,18 +16,14 @@ import java.util.List;
 public class EventLogService {
     private  static  final Logger log = LoggerFactory.getLogger(EventLogService.class);
     private final EventLogRepository repository;
-    public  void logEvent(EventDTO event, String destinationTopic, EventStatus status){
-        try{
-            EventLog logEntry = new EventLog();
-            logEntry.setEventId(event.getEventId());
-            logEntry.setEventType(event.getEventType());
-            logEntry.setSource(event.getSource());
-            logEntry.setDestinationTopic(destinationTopic);
-            logEntry.setStatus(status);
-            repository.save(logEntry);
-        } catch (Exception ex){
-            log.error("Failed to log event {} due to {}", event, ex.getMessage());
-        }
+
+    public void updateStatus(String eventId, String destinationTopic, EventStatus eventStatus){
+        EventLog eventLog = repository.findByEventId(eventId).orElseThrow(() -> new RuntimeException("Event not found:" + eventId));
+        eventLog.setDestinationTopic(destinationTopic);
+        eventLog.setStatus(eventStatus);
+
+        repository.save(eventLog);
+        log.info("Event updated: {} -> {}", eventId, eventStatus);
     }
 
     public List<EventLog> getAllLogs(){

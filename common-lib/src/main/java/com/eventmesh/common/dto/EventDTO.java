@@ -23,5 +23,5 @@ public class EventDTO {
     @NotNull(message = "payload cannot be null")
     private Map<String, Object> payload;
 
-    private Map<String,String> metadata;
+//    private Map<String,String> metadata;
 }
