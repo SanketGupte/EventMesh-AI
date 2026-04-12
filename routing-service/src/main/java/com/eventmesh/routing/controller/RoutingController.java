@@ -1,9 +1,12 @@
 package com.eventmesh.routing.controller;
 
+import com.eventmesh.common.ApiResponse;
 import com.eventmesh.common.dto.RoutingRule;
+import com.eventmesh.routing.entity.RoutingRuleEntity;
 import com.eventmesh.routing.service.RoutingRuleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,27 +19,29 @@ public class RoutingController {
 
     //Function to add new Rule
     @PostMapping
-    public String addRule(@RequestBody @Valid RoutingRule rule){
-        routingRuleService.addRule(rule);
-        return "Rule added successfully";
+    public ResponseEntity<ApiResponse<RoutingRuleEntity>> addRule(@RequestBody @Valid RoutingRule rule){
+        RoutingRuleEntity addedRule = routingRuleService.addRule(rule);
+        return  ResponseEntity.ok(ApiResponse.success("Routing rule added successfully", addedRule));
     }
 
     //Get all Rules
     @GetMapping
-    public List<RoutingRule> getAllRules(){
-        return routingRuleService.getAllRules();
+    public ResponseEntity<ApiResponse<List<RoutingRule>>>  getAllRules(){
+        List<RoutingRule> rules = routingRuleService.getAllRules();
+        return ResponseEntity.ok(ApiResponse.success("Routing rules fetched successfully", rules));
+
     }
 
     @DeleteMapping("/{id}")
-    public String deleteById(@PathVariable("id") Long id){
+    public ResponseEntity<ApiResponse<String>> deleteById(@PathVariable("id") Long id){
         routingRuleService.deleteById(id);
-        return "Rule deleted by ID";
+        return ResponseEntity.ok(ApiResponse.success("Routing rule deleted successfully."));
     }
 
     @DeleteMapping("/event/{eventType}")
-    public String deleteByEventType(@PathVariable("eventType") String eventType){
+    public ResponseEntity<ApiResponse<String>> deleteByEventType(@PathVariable("eventType") String eventType){
         routingRuleService.deleteByEventType(eventType);
-        return "Rule deleted by Event Type";
+        return ResponseEntity.ok(ApiResponse.success("Routing rule deleted successfully."));
     }
 
 }

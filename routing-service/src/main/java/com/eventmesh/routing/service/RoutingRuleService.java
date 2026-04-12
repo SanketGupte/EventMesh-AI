@@ -22,7 +22,7 @@ public class RoutingRuleService {
     }
 
     //Add new Rule
-    public void addRule(RoutingRule rule){
+    public RoutingRuleEntity addRule(RoutingRule rule){
         routingRuleRepository.findByEventType(rule.getEventType())
                 .ifPresent(existingRule -> {
             throw new IllegalArgumentException("Rule already exists for event type: " + rule.getEventType());
@@ -32,6 +32,7 @@ public class RoutingRuleService {
         entity.setEventType(rule.getEventType());
         entity.setDestinationTopic(rule.getDestinationTopic());
         routingRuleRepository.save(entity);
+        return entity;
     }
 
     //Get all Rules

@@ -1,5 +1,6 @@
 package com.eventmesh.routing.exception;
 
+import com.eventmesh.common.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,27 +14,29 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex){
+    public ResponseEntity<ApiResponse<String>> handleGenericException(Exception ex){
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
         error.put("error", ex.getMessage());
         error.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.badRequest().body(ApiResponse.error(ex.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleBadRequest(IllegalArgumentException ex){
+    public ResponseEntity<ApiResponse<String>> handleBadRequest(IllegalArgumentException ex){
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
         error.put("error", ex.getMessage());
         error.put("status", HttpStatus.BAD_REQUEST.value());
 
-        return  new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(
+                ApiResponse.error(ex.getMessage())
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex){
+    public ResponseEntity<ApiResponse<String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex){
         Map<String, Object> error = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(err ->{
             error.put(err.getField(), err.getDefaultMessage());
@@ -44,6 +47,16 @@ public class GlobalExceptionHandler {
         response.put("status", 400);
         response.put("errors", error);
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(
+                ApiResponse.error(ex.getMessage())
+        );
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException ex) {
+
+        return ResponseEntity.badRequest().body(
+                ApiResponse.error(ex.getMessage())
+        );
     }
 }
