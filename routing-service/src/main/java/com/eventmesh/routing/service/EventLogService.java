@@ -42,4 +42,19 @@ public class EventLogService {
                 .filter(log -> log.getEventType().equalsIgnoreCase(eventType))
                 .toList();
     }
+
+    public void enrichEventLog(String eventId,
+                               String payload,
+                               boolean aiDecision,
+                               double confidence) {
+
+        EventLog log = repository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        log.setPayload(payload);
+        log.setAiDecision(aiDecision);
+        log.setConfidenceScore(confidence);
+
+        repository.save(log);
+    }
 }

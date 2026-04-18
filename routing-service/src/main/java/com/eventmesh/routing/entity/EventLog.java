@@ -21,5 +21,9 @@ public class EventLog {
     private String destinationTopic;
     @Enumerated(EnumType.STRING)
     private EventStatus status;
+    private String payload; // JSON stored here
+
+    private Boolean aiDecision;
+    private Double confidenceScore;
     private LocalDateTime timestamp;
 }

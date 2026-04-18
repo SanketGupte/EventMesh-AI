@@ -1,20 +1,19 @@
 spring:
   application:
-    name: routing-service
-  datasource:
-    url: jdbc:postgresql://localhost:5432/eventmesh
-    username: postgres
-    password: postgres
+    name: eventmesh-ai
 
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+  profiles:
+    active: dev
 
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+
+app:
   kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      auto-offset-reset: latest
-      group-id: eventmesh-routing-group-v2
-      enable-auto-commit: true
+    topic:
+      raw-events: raw-events-topic
+      dlq: dlq-topic

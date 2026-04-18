@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.Map;
 
 @Data
@@ -17,11 +18,11 @@ public class EventDTO {
     @NotBlank(message = "source is required")
     private String source;
 
-    @NotBlank(message = "timestamp is required")
-    private String timestamp;
+    @NotNull(message = "timestamp is required")
+    private Instant timestamp;
 
     @NotNull(message = "payload cannot be null")
     private Map<String, Object> payload;
 
-//    private Map<String,String> metadata;
+    private Map<String,String> metadata;
 }

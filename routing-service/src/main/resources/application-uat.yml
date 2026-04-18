@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://uat-db:5432/eventmesh_uat
+    username: uat_user
+    password: uat_password
+
+  kafka:
+    bootstrap-servers: uat-kafka:9092
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+
+app:
+  env: uat

@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://prod-db:5432/eventmesh_prod
+    username: prod_user
+    password: prod_password
+
+  kafka:
+    bootstrap-servers: prod-kafka:9092
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    root: ERROR
+
+server:
+  port: 8080
+
+app:
+  env: prod
