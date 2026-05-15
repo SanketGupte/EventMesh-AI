@@ -16,11 +16,13 @@ public class EventLog {
 
     @Column(name="event_id", nullable = false, unique = true)
     private String eventId;
+    @Column(nullable = false)
     private String eventType;
     private String source;
     private String destinationTopic;
     @Enumerated(EnumType.STRING)
     private EventStatus status;
+    @Column(columnDefinition = "TEXT")
     private String payload; // JSON stored here
 
     private Boolean aiDecision;

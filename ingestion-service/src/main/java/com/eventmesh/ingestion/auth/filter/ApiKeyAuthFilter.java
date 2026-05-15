@@ -2,6 +2,7 @@ package com.eventmesh.ingestion.auth.filter;
 
 import com.eventmesh.common.security.AuthEntryPoint;
 import com.eventmesh.ingestion.auth.entity.ApiKeyEntity;
+import com.eventmesh.ingestion.auth.exception.CustomAuthException;
 import com.eventmesh.ingestion.auth.service.ApiKeyService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -39,14 +40,14 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             return;
         }
         try{
-            ApiKeyEntity entity = apiKeyService.validateApiKey(apiKey);
+            ApiKeyEntity entity = apiKeyService.validateApiKeyHeader(apiKey);
 
             //Inject role into request for downstream usage
             request.setAttribute("role", entity.getRole());
             request.setAttribute("clientName", entity.getClientName());
 
             filterChain.doFilter(request, response);
-        } catch (RuntimeException ex){
+        } catch (CustomAuthException ex){
             log.warn("Unauthorized request: {}", ex.getMessage());
             AuthEntryPoint.handleUnauthorized(request, response, ex.getMessage());
         }

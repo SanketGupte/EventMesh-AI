@@ -1,5 +1,6 @@
 package com.eventmesh.common.security;
 
+import com.eventmesh.common.exception.ErrorCode;
 import com.eventmesh.common.response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +25,7 @@ public class AuthEntryPoint {
 
         ErrorResponse errorResponse = ErrorResponse.of(
                 message,
-                "AUTHENTICATION_FAILED"
+                ErrorCode.AUTHENTICATION_FAILED
         );
 
         writeResponse(response, HttpServletResponse.SC_UNAUTHORIZED, errorResponse);
@@ -40,7 +41,7 @@ public class AuthEntryPoint {
 
         ErrorResponse errorResponse = ErrorResponse.of(
                 message,
-                "ACCESS_DENIED"
+                ErrorCode.ACCESS_DENIED
         );
 
         writeResponse(response, HttpServletResponse.SC_FORBIDDEN, errorResponse);

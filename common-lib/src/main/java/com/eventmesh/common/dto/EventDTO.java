@@ -2,12 +2,14 @@ package com.eventmesh.common.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
 import java.util.Map;
 
 @Data
+@Builder
 public class EventDTO {
     @NotBlank(message = "eventId is required")
     private String eventId;

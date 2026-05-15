@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
+ 
 public interface ApiKeyRepository extends JpaRepository<ApiKeyEntity, Long> {
-    /*Find API Key by value*/
-    Optional<ApiKeyEntity>  findByApiKey(String apiKey);
-    /*Check if API Key exists*/
-    boolean existsByApiKey(String apiKey);
+    /*Find API Key by public keyId*/
+    Optional<ApiKeyEntity> findByKeyId(String keyId);
+    /*Check if keyId exists*/
+    boolean existsByKeyId(String keyId);
 }

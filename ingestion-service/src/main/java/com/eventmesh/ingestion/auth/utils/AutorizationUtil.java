@@ -12,7 +12,7 @@ public class AutorizationUtil {
 
     /*Allow only ADMIN*/
 
-    public static void requireAdmin(HttpServletRequest request) {
+    public static void requireAdmin(HttpServletRequest request) throws CustomAuthException {
         String role = extractRole(request);
 
         if (!"ADMIN".equals(role)) {
@@ -20,7 +20,7 @@ public class AutorizationUtil {
         }
     }
 
-    public static void requireAdminOrViewer(HttpServletRequest request) {
+    public static void requireAdminOrViewer(HttpServletRequest request) throws CustomAuthException {
         String role = extractRole(request);
 
         if (!"ADMIN".equals(role) && !"VIEWER".equals(role)) {
@@ -28,7 +28,7 @@ public class AutorizationUtil {
         }
     }
 
-    public static void requireClientOrAdmin(HttpServletRequest request) {
+    public static void requireClientOrAdmin(HttpServletRequest request) throws CustomAuthException {
         String role = extractRole(request);
 
         if (!"CLIENT".equals(role) && !"ADMIN".equals(role)) {
@@ -36,7 +36,7 @@ public class AutorizationUtil {
         }
     }
 
-    private static String extractRole(HttpServletRequest request) {
+    private static String extractRole(HttpServletRequest request) throws CustomAuthException {
 
         Object roleObj = request.getAttribute("role");
 

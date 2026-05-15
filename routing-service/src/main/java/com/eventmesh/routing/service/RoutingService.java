@@ -1,7 +1,6 @@
 package com.eventmesh.routing.service;
 
 import com.eventmesh.common.dto.EventDTO;
-import com.eventmesh.routing.ai.service.AiRoutingService;
 import com.eventmesh.routing.entity.EventLog;
 import com.eventmesh.routing.enums.EventStatus;
 import com.eventmesh.routing.exception.DuplicateEventException;
@@ -13,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +32,7 @@ public class RoutingService {
     private final EventLogRepository eventLogRepository;
     private final ObjectMapper objectMapper;
 
+    @Transactional
     public void route(EventDTO event){
 
         String eventId = event.getEventId();
@@ -91,7 +92,13 @@ public class RoutingService {
 
 
             log.info("Routing event to: {}", destinationTopic);
-            kafkaTemplate.send(destinationTopic, event);
+            kafkaTemplate.send(destinationTopic, event).whenComplete((result, ex) -> {
+                if(ex != null){
+                    log.error("Kafka send failed", ex);
+                } else {
+                    log.info("Kafka send successful: {}", result.getRecordMetadata());
+                }
+            });
             eventLogService.updateStatus(
                     event.getEventId(),
                     destinationTopic,

@@ -1,7 +1,9 @@
 package com.eventmesh.ingestion.auth.controller;
 
 import com.eventmesh.common.ApiResponse;
-import com.eventmesh.ingestion.auth.entity.ApiKeyEntity;
+import com.eventmesh.ingestion.auth.dto.ApiKeyCreateResponse;
+import com.eventmesh.ingestion.auth.dto.ApiKeyView;
+import com.eventmesh.ingestion.auth.exception.CustomAuthException;
 import com.eventmesh.ingestion.auth.service.ApiKeyService;
 import com.eventmesh.ingestion.auth.utils.AutorizationUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,14 +24,14 @@ public class ApiKeyController {
      * ADMIN ONLY
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<ApiKeyEntity>> createApiKey(
+    public ResponseEntity<ApiResponse<ApiKeyCreateResponse>> createApiKey(
             @RequestParam String clientName,
             @RequestParam String role,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws CustomAuthException {
 
         AutorizationUtil.requireAdmin(request);
 
-        ApiKeyEntity apiKey = apiKeyService.generateApiKey(clientName, role);
+        ApiKeyCreateResponse apiKey = apiKeyService.generateApiKey(clientName, role);
 
         return ResponseEntity.ok(
                 ApiResponse.success("API Key created successfully", apiKey)
@@ -39,14 +41,14 @@ public class ApiKeyController {
     /**
      * ADMIN ONLY
      */
-    @DeleteMapping("/{apiKey}")
+    @DeleteMapping("/{keyId}")
     public ResponseEntity<ApiResponse<String>> deactivateApiKey(
-            @PathVariable String apiKey,
-            HttpServletRequest request) {
+            @PathVariable String keyId,
+            HttpServletRequest request) throws CustomAuthException {
 
         AutorizationUtil.requireAdmin(request);
 
-        apiKeyService.deactivateKey(apiKey);
+        apiKeyService.deactivateKeyById(keyId);
 
         return ResponseEntity.ok(
                 ApiResponse.success("API Key deactivated successfully")
@@ -57,12 +59,12 @@ public class ApiKeyController {
      * ADMIN / VIEWER
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ApiKeyEntity>>> getAllKeys(
-            HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<List<ApiKeyView>>> getAllKeys(
+            HttpServletRequest request) throws CustomAuthException {
 
-        AutorizationUtil.requireAdmin(request);
+        AutorizationUtil.requireAdminOrViewer(request);
 
-        List<ApiKeyEntity> keys = apiKeyService.getAllKeys();
+        List<ApiKeyView> keys = apiKeyService.getAllKeys();
 
         return ResponseEntity.ok(
                 ApiResponse.success("API Keys fetched successfully", keys)
