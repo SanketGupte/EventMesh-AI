@@ -3,6 +3,8 @@ package com.eventmesh.common.security;
 import com.eventmesh.common.exception.ErrorCode;
 import com.eventmesh.common.response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -56,6 +58,8 @@ public class AuthEntryPoint {
 
         response.setStatus(status);
         response.setContentType("application/json");
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         String json = objectMapper.writeValueAsString(errorResponse);
         response.getWriter().write(json);

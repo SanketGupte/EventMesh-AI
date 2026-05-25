@@ -10,17 +10,38 @@ services:
       - "9092:9092"
 
     environment:
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
       KAFKA_NODE_ID: 1
+
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@eventmesh-kafka:9093
-      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@eventmesh-kafka:29093
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093
+
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "nc -z localhost 9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - eventmesh-network
 
   postgres-dev:
     image: postgres:16
@@ -33,8 +54,6 @@ services:
       POSTGRES_DB: eventmesh_dev
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      # Ensure container timezone uses the modern IANA name (Asia/Kolkata) to avoid
-      # Postgres rejecting deprecated zone names like Asia/Calcutta
       TZ: Asia/Kolkata
 
     healthcheck:
@@ -45,6 +64,9 @@ services:
 
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
+
+    networks:
+      - eventmesh-network
 
   postgres-sit:
     image: postgres:16
@@ -61,6 +83,9 @@ services:
     volumes:
       - postgres-sit-data:/var/lib/postgresql/data
 
+    networks:
+      - eventmesh-network
+
   postgres-uat:
     image: postgres:16
     container_name: eventmesh-postgres-uat
@@ -76,6 +101,9 @@ services:
     volumes:
       - postgres-uat-data:/var/lib/postgresql/data
 
+    networks:
+      - eventmesh-network
+
   postgres-prod:
     image: postgres:16
     container_name: eventmesh-postgres-prod
@@ -90,6 +118,61 @@ services:
 
     volumes:
       - postgres-prod-data:/var/lib/postgresql/data
+
+    networks:
+      - eventmesh-network
+
+  ingestion-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ingestion-runtime
+
+    container_name: ingestion-service
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres-dev:
+        condition: service_healthy
+
+    networks:
+      - eventmesh-network
+
+  routing-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: routing-runtime
+
+    container_name: routing-service
+
+    ports:
+      - "8082:8082"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres-dev:
+        condition: service_healthy
+
+    networks:
+      - eventmesh-network
+
+networks:
+  eventmesh-network:
+    driver: bridge
 
 volumes:
   postgres-dev-data:

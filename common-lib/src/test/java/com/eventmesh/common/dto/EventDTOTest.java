@@ -25,7 +25,7 @@ class EventDTOTest {
             .eventId("evt-001")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.from(LocalDateTime.now()))
+            .timestamp(Instant.now())
             .payload(new HashMap<>(Map.of("orderId", "ORD-001")))
             .metadata(new HashMap<>(Map.of("correlationId", "corr-123")))
             .build();
@@ -44,7 +44,7 @@ class EventDTOTest {
             .eventId("evt-002")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.from(LocalDateTime.now()))
+            .timestamp(Instant.now())
             .payload(null)
             .build();
 
@@ -63,7 +63,7 @@ class EventDTOTest {
             .eventId("evt-001")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.from(now))
+            .timestamp(Instant.now())
             .payload(payload)
             .build();
 
@@ -71,7 +71,7 @@ class EventDTOTest {
             .eventId("evt-001")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.from(now))
+            .timestamp(Instant.now())
             .payload(payload)
             .build();
 
@@ -91,7 +91,7 @@ class EventDTOTest {
             .eventId("evt-003")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.from(LocalDateTime.now()))
+            .timestamp(Instant.now())
             .payload(complexPayload)
             .build();
 

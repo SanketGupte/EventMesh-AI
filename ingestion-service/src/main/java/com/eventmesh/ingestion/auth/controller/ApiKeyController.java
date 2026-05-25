@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/api-keys")
 @RequiredArgsConstructor
-public class ApiKeyController {
+public class  ApiKeyController {
 
     private final ApiKeyService apiKeyService;
 

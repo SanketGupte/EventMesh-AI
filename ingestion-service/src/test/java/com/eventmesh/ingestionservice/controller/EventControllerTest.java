@@ -1,4 +1,4 @@
-//package com.eventmesh.ingestion.controller;
+//package com.eventmesh.ingestionservice.controller;
 //
 //import com.eventmesh.common.ApiResponse;
 //import com.eventmesh.common.dto.EventDTO;
@@ -20,6 +20,8 @@
 //import static org.junit.jupiter.api.Assertions.*;
 //import static org.mockito.ArgumentMatchers.any;
 //import static org.mockito.Mockito.*;
+//
+//import com.eventmesh.ingestion.controller.EventController;
 //
 ///**
 // * Unit Tests for EventController.
@@ -43,7 +45,7 @@
 //            .eventId("evt-001")
 //            .eventType("ORDER_CREATED")
 //            .source("order-service")
-//            .timestamp(Instant.from(LocalDateTime.now()))
+//            .timestamp(Instant.from(Instant.now()))
 //            .payload(new HashMap<>(Map.of("orderId", "ORD-001", "amount", 100.0)))
 //            .metadata(new HashMap<>(Map.of("correlationId", "corr-123")))
 //            .build();
@@ -52,15 +54,15 @@
 //    @Test
 //    void testPublishEventSuccess() {
 //        // Arrange
-//        doNothing().when(eventProducer).sendEvent(any(EventDTO.class));
+//        doNothing().when(eventProducer).send(any(EventDTO.class));
 //
 //        // Act
-//        ResponseEntity<ApiResponse> response = eventController.publishEvent(validEvent);
+//        ResponseEntity<ApiResponse<EventDTO>> response = eventController.publishEvent(validEvent);
 //
 //        // Assert
 //        assertNotNull(response);
 //        assertEquals("SUCCESS", response.getBody().getStatus());
-//        verify(eventProducer, times(1)).sendEvent(validEvent);
+//        verify(eventProducer, times(1)).send(validEvent);
 //    }
 //
 //    @Test
@@ -70,7 +72,7 @@
 //
 //        // Act & Assert
 //        assertThrows(Exception.class, () -> eventController.publishEvent(validEvent));
-//        verify(eventProducer, never()).sendEvent(any());
+//        verify(eventProducer, never()).send(any());
 //    }
 //
 //    @Test
@@ -80,14 +82,14 @@
 //
 //        // Act & Assert
 //        assertThrows(Exception.class, () -> eventController.publishEvent(validEvent));
-//        verify(eventProducer, never()).sendEvent(any());
+//        verify(eventProducer, never()).send(any());
 //    }
 //
 //    @Test
 //    void testPublishEventProducerFailure() {
 //        // Arrange
 //        doThrow(new RuntimeException("Kafka connection failed"))
-//            .when(eventProducer).sendEvent(any(EventDTO.class));
+//            .when(eventProducer).send(any(EventDTO.class));
 //
 //        // Act & Assert
 //        assertThrows(RuntimeException.class, () -> eventController.publishEvent(validEvent));
@@ -102,10 +104,10 @@
 //        complexPayload.put("nested", Map.of("key", "value"));
 //        validEvent.setPayload(complexPayload);
 //
-//        doNothing().when(eventProducer).sendEvent(any(EventDTO.class));
+//        doNothing().when(eventProducer).send(any(EventDTO.class));
 //
 //        // Act
-//        ResponseEntity<ApiResponse> response = eventController.publishEvent(validEvent);
+//        ResponseEntity<ApiResponse<EventDTO>> response = eventController.publishEvent(validEvent);
 //
 //        // Assert
 //        assertNotNull(response);

@@ -1,14 +1,14 @@
 spring:
   datasource:
     # allow overriding via environment variables for local/dev convenience
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/eventmesh_dev}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres-dev:5432/eventmesh_dev}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:postgres}
     hikari:
-      initialization-fail-timeout: -1
+      initialization-fail-timeout: 30000
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
 
   jpa:
     hibernate:
@@ -21,8 +21,10 @@ spring:
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
     org.springframework: INFO
+    org.hibernate: WARN
+    org.apache.kafka: INFO
 
 app:
   env: dev
