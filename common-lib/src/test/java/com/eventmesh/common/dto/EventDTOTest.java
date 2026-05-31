@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ExtendWith(MockitoExtension.class)
 class EventDTOTest {
+    private static final Instant FIXED_TIMESTAMP = Instant.parse("2024-01-01T00:00:00Z");
 
     @Test
     void testEventDTOCreation() {
@@ -25,7 +25,7 @@ class EventDTOTest {
             .eventId("evt-001")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.now())
+            .timestamp(FIXED_TIMESTAMP)
             .payload(new HashMap<>(Map.of("orderId", "ORD-001")))
             .metadata(new HashMap<>(Map.of("correlationId", "corr-123")))
             .build();
@@ -44,7 +44,7 @@ class EventDTOTest {
             .eventId("evt-002")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.now())
+            .timestamp(FIXED_TIMESTAMP)
             .payload(null)
             .build();
 
@@ -56,14 +56,13 @@ class EventDTOTest {
     @Test
     void testEventDTOEquals() {
         // Arrange
-        LocalDateTime now = LocalDateTime.now();
         Map<String, Object> payload = new HashMap<>(Map.of("orderId", "ORD-001"));
 
         EventDTO event1 = EventDTO.builder()
             .eventId("evt-001")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.now())
+            .timestamp(FIXED_TIMESTAMP)
             .payload(payload)
             .build();
 
@@ -71,7 +70,7 @@ class EventDTOTest {
             .eventId("evt-001")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.now())
+            .timestamp(FIXED_TIMESTAMP)
             .payload(payload)
             .build();
 
@@ -91,7 +90,7 @@ class EventDTOTest {
             .eventId("evt-003")
             .eventType("ORDER_CREATED")
             .source("order-service")
-            .timestamp(Instant.now())
+            .timestamp(FIXED_TIMESTAMP)
             .payload(complexPayload)
             .build();
 
