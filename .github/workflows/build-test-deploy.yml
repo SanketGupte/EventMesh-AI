@@ -118,8 +118,8 @@ jobs:
           target: ingestion-runtime
           push: true
           tags: |
-            eventmesh/ingestion-service:latest
-            eventmesh/ingestion-service:${{ github.sha }}
+            sanketgupte/ingestion-service:latest
+            sanketgupte/ingestion-service:${{ github.sha }}
 
       - name: Build Routing Image
         uses: docker/build-push-action@v6
@@ -129,8 +129,8 @@ jobs:
           target: routing-runtime
           push: true
           tags: |
-            eventmesh/routing-service:latest
-            eventmesh/routing-service:${{ github.sha }}
+            sanketgupte/routing-service:latest
+            sanketgupte/routing-service:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
