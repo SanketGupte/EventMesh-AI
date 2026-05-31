@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    # allow overriding via environment variables for local/dev convenience
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres-dev:5432/eventmesh_dev}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+    hikari:
+      # Don't fail application startup if DB is temporarily unavailable during development
+      initialization-fail-timeout: 30000
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    # When DB metadata cannot be obtained (DB down), explicitly set dialect to avoid Hibernate failure
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate: WARN
+    org.apache.kafka: INFO
+
+app:
+  env: dev

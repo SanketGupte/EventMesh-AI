@@ -1,35 +1,181 @@
+version: '3.9'
+
 services:
+
   kafka:
     image: confluentinc/cp-kafka:7.6.0
     container_name: eventmesh-kafka
+
     ports:
       - "9092:9092"
+
     environment:
-      # KRaft mode settings
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
       KAFKA_NODE_ID: 1
+
       KAFKA_PROCESS_ROLES: broker,controller
 
-      # Controller quorum (CRITICAL)
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@eventmesh-kafka:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@eventmesh-kafka:29093
 
-      # Listeners
-      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093
 
-      # Protocol mapping
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
 
-      # Controller listener
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
 
-      # Replication
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-      # Single-node cluster requirement
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
-      # Auto topic creation
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
 
-      # REQUIRED for KRaft cluster ID
-      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "nc -z localhost 9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - eventmesh-network
+
+  postgres-dev:
+    image: postgres:16
+    container_name: eventmesh-postgres-dev
+
+    ports:
+      - "5432:5432"
+
+    environment:
+      POSTGRES_DB: eventmesh_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: Asia/Kolkata
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eventmesh_dev || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+
+    networks:
+      - eventmesh-network
+
+  postgres-sit:
+    image: postgres:16
+    container_name: eventmesh-postgres-sit
+
+    ports:
+      - "5433:5432"
+
+    environment:
+      POSTGRES_DB: eventmesh_sit
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    volumes:
+      - postgres-sit-data:/var/lib/postgresql/data
+
+    networks:
+      - eventmesh-network
+
+  postgres-uat:
+    image: postgres:16
+    container_name: eventmesh-postgres-uat
+
+    ports:
+      - "5434:5432"
+
+    environment:
+      POSTGRES_DB: eventmesh_uat
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    volumes:
+      - postgres-uat-data:/var/lib/postgresql/data
+
+    networks:
+      - eventmesh-network
+
+  postgres-prod:
+    image: postgres:16
+    container_name: eventmesh-postgres-prod
+
+    ports:
+      - "5435:5432"
+
+    environment:
+      POSTGRES_DB: eventmesh_prod
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    volumes:
+      - postgres-prod-data:/var/lib/postgresql/data
+
+    networks:
+      - eventmesh-network
+
+  ingestion-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ingestion-runtime
+
+    container_name: ingestion-service
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres-dev:
+        condition: service_healthy
+
+    networks:
+      - eventmesh-network
+
+  routing-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: routing-runtime
+
+    container_name: routing-service
+
+    ports:
+      - "8082:8082"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres-dev:
+        condition: service_healthy
+
+    networks:
+      - eventmesh-network
+
+networks:
+  eventmesh-network:
+    driver: bridge
+
+volumes:
+  postgres-dev-data:
+  postgres-sit-data:
+  postgres-uat-data:
+  postgres-prod-data:

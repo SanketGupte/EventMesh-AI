@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: eventmesh
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eventmesh-config
+  namespace: eventmesh
+data:
+  application-prod.yaml: |
+    spring:
+      application:
+        name: eventmesh-ai
+      profiles:
+        active: prod
+      kafka:
+        bootstrap-servers: kafka-service:9092
+        producer:
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      datasource:
+        url: jdbc:postgresql://postgres-service:5432/eventmesh_db
+        username: eventmesh_user
+        password: ${DB_PASSWORD}
+      jpa:
+        hibernate:
+          ddl-auto: validate
+        properties:
+          hibernate:
+            dialect: org.hibernate.dialect.PostgreSQL10Dialect
+    logging:
+      level:
+        root: INFO
+        com.eventmesh: DEBUG
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: eventmesh-secrets
+  namespace: eventmesh
+type: Opaque
+stringData:
+  db-password: eventmesh_password
+  db-username: eventmesh_user
+  kafka-bootstrap-servers: kafka-service:9092
+

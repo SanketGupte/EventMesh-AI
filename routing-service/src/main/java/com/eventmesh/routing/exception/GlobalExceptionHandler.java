@@ -1,5 +1,8 @@
 package com.eventmesh.routing.exception;
 
+import com.eventmesh.common.ApiResponse;
+import com.eventmesh.common.exception.ErrorCode;
+import com.eventmesh.common.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,41 +12,56 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex){
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("error", ex.getMessage());
-        error.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                ErrorResponse.of(
+                        "Unexpected error occurred",
+                        ErrorCode.INTERNAL_ERROR
+                )
+        );
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleBadRequest(IllegalArgumentException ex){
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("error", ex.getMessage());
-        error.put("status", HttpStatus.BAD_REQUEST.value());
+    public ResponseEntity<ErrorResponse> handleBadRequest(IllegalArgumentException ex) {
 
-        return  new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ErrorResponse.of(
+                        ex.getMessage(),
+                        ErrorCode.VALIDATION_FAILED
+                )
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex){
-        Map<String, Object> error = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(err ->{
-            error.put(err.getField(), err.getDefaultMessage());
-        });
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex){
+        String message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .collect(Collectors.joining(", "));
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", 400);
-        response.put("errors", error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ErrorResponse.of(
+                        message,
+                        ErrorCode.VALIDATION_FAILED
+                )
+        );
+    }
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                ErrorResponse.of(
+                        ex.getMessage(),
+                        ErrorCode.INTERNAL_ERROR
+                )
+        );
     }
 }

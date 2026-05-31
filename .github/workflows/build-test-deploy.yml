@@ -1,0 +1,133 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: eventmesh_db
+          POSTGRES_USER: eventmesh_user
+          POSTGRES_PASSWORD: eventmesh_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      kafka:
+        image: confluentinc/cp-kafka:7.6.0
+        env:
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: broker,controller
+          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+          KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          CLUSTER_ID: MkU3OEVCNTcwNTJENDM2Qk
+        ports:
+          - 9092:9092
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: mvn clean install -DskipTests
+
+    - name: Run Unit Tests
+      run: mvn test -P test
+
+    - name: Run Integration Tests
+      run: mvn verify -P integration-test
+      env:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/eventmesh_db
+        SPRING_DATASOURCE_USERNAME: eventmesh_user
+        SPRING_DATASOURCE_PASSWORD: eventmesh_password
+        SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+
+    - name: Upload Coverage Reports
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push Ingestion Service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./ingestion-service
+        push: true
+        tags: |
+          eventmesh/ingestion-service:latest
+          eventmesh/ingestion-service:${{ github.sha }}
+        cache-from: type=registry,ref=eventmesh/ingestion-service:buildcache
+        cache-to: type=registry,ref=eventmesh/ingestion-service:buildcache,mode=max
+
+    - name: Build and push Routing Service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./routing-service
+        push: true
+        tags: |
+          eventmesh/routing-service:latest
+          eventmesh/routing-service:${{ github.sha }}
+        cache-from: type=registry,ref=eventmesh/routing-service:buildcache
+        cache-to: type=registry,ref=eventmesh/routing-service:buildcache,mode=max
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Deploy to Kubernetes
+      env:
+        KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      run: |
+        mkdir -p ~/.kube
+        echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+        kubectl apply -f k8s/
+
+    - name: Verify Deployment
+      run: |
+        kubectl rollout status deployment/ingestion-service -n eventmesh
+        kubectl rollout status deployment/routing-service -n eventmesh
+

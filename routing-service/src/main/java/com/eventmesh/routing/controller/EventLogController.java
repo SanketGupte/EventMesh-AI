@@ -1,8 +1,10 @@
 package com.eventmesh.routing.controller;
 
+import com.eventmesh.common.ApiResponse;
 import com.eventmesh.routing.entity.EventLog;
 import com.eventmesh.routing.service.EventLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,17 +19,26 @@ public class EventLogController {
     private final EventLogService eventLogService;
 
     @GetMapping
-    public List<EventLog> getAllLogs(){
-        return eventLogService.getAllLogs();
+    public ResponseEntity<ApiResponse<List<EventLog>>> getAllLogs(){
+        List<EventLog> logs = eventLogService.getAllLogs();
+        return ResponseEntity.ok(
+                ApiResponse.success("Event logs fetched successfully", logs)
+        );
     }
 
     @GetMapping("/status/{status}")
-    public List<EventLog> getByStatus(@PathVariable("status") String status){
-        return eventLogService.getStatus(status);
+    public ResponseEntity<ApiResponse<List<EventLog>>> getByStatus(@PathVariable("status") String status){
+        List<EventLog> logs = eventLogService.getStatus(status);
+        return ResponseEntity.ok(
+                ApiResponse.success("Event logs fetched successfully", logs)
+        );
     }
 
     @GetMapping("/event/{eventType}")
-    public List<EventLog> getByEventType(@PathVariable("eventType") String eventType){
-        return eventLogService.getByEventType(eventType);
+    public ResponseEntity<ApiResponse<List<EventLog>>> getByEventType(@PathVariable("eventType") String eventType){
+        List<EventLog> logs = eventLogService.getByEventType(eventType);
+        return ResponseEntity.ok(
+                ApiResponse.success("Event logs fetched successfully", logs)
+        );
     }
 }

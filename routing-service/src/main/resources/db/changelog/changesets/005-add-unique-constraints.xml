@@ -1,0 +1,19 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="005-add-unique-constraints" author="EventMesh">
+        <!-- Ensure event_id is unique to prevent duplicates -->
+        <addUniqueConstraint tableName="event_log" columnNames="event_id" constraintName="uk_event_log_event_id"/>
+
+        <!-- Ensure API key is unique -->
+        <addUniqueConstraint tableName="api_key" columnNames="api_key" constraintName="uk_api_key"/>
+
+        <!-- Ensure event type and destination combination is unique in routing rules -->
+        <addUniqueConstraint tableName="routing_rule_entity" columnNames="event_type,destination" constraintName="uk_routing_rule"/>
+    </changeSet>
+
+</databaseChangeLog>
+
