@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://uat-db:5432/eventmesh_uat
-    username: uat_user
-    password: uat_password
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   kafka:
-    bootstrap-servers: uat-kafka:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
 
   jpa:
     hibernate:
@@ -17,4 +17,4 @@ logging:
     root: WARN
 
 app:
-  env: uat
+  env: ${APP_ENV:uat}

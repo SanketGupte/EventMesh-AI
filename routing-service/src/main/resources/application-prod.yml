@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://prod-db:5432/eventmesh_prod
-    username: prod_user
-    password: prod_password
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   kafka:
-    bootstrap-servers: prod-kafka:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
 
   jpa:
     hibernate:
@@ -17,7 +17,7 @@ logging:
     root: ERROR
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 app:
-  env: prod
+  env: ${APP_ENV:prod}

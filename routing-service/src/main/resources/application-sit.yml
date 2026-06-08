@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://sit-db:5432/eventmesh_sit
-    username: sit_user
-    password: sit_password
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   kafka:
-    bootstrap-servers: sit-kafka:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
 
   jpa:
     hibernate:
@@ -17,4 +17,4 @@ logging:
     root: INFO
 
 app:
-  env: sit
+  env: ${APP_ENV:sit}
