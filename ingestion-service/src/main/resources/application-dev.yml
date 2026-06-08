@@ -14,10 +14,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    # When DB metadata cannot be obtained (DB down), explicitly set dialect to avoid Hibernate failure
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
 logging:
