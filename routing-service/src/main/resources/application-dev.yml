@@ -13,6 +13,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    # Explicit dialect to avoid Hibernate boot-time failure when DB is temporarily unavailable
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
 logging:
