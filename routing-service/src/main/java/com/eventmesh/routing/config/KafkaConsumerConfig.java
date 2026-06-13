@@ -1,6 +1,7 @@
 package com.eventmesh.routing.config;
 
 import com.eventmesh.common.dto.EventDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Configuration
 public class KafkaConsumerConfig {
 
@@ -53,6 +55,11 @@ public class KafkaConsumerConfig {
         if (saslJaasConfig != null && !saslJaasConfig.isEmpty()) {
             config.put("sasl.jaas.config", saslJaasConfig);
         }
+
+        log.info("Kafka Bootstrap: {}", bootstrapServers);
+        log.info("Kafka Security Protocol: {}", securityProtocol);
+        log.info("Kafka SASL Mechanism: {}", saslMechanism);
+        log.info("Kafka JAAS Config Present: {}", !saslJaasConfig.isBlank());
 
         return new DefaultKafkaConsumerFactory<>(
                 config,
