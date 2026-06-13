@@ -20,6 +20,21 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
+    @Value("${spring.kafka.consumer.group-id}")
+    private String groupId;
+
+    @Value("${spring.kafka.consumer.auto-offset-reset}")
+    private String autoOffsetReset;
+
+    @Value("${spring.kafka.properties.security.protocol}")
+    private String securityProtocol;
+
+    @Value("${spring.kafka.properties.sasl.mechanism}")
+    private String saslMechanism;
+
+    @Value("${spring.kafka.properties.sasl.jaas.config}")
+    private String saslJaasConfig;
+
     @Bean
     public ConsumerFactory<String, EventDTO> consumerFactory(){
         JsonDeserializer<EventDTO> deserializer = new JsonDeserializer<EventDTO>();
@@ -27,8 +42,17 @@ public class KafkaConsumerConfig {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "eventmesh-routing-group-v2");
-        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
+        if (securityProtocol != null && !securityProtocol.isEmpty()) {
+            config.put("security.protocol", securityProtocol);
+        }
+        if (saslMechanism != null && !saslMechanism.isEmpty()) {
+            config.put("sasl.mechanism", saslMechanism);
+        }
+        if (saslJaasConfig != null && !saslJaasConfig.isEmpty()) {
+            config.put("sasl.jaas.config", saslJaasConfig);
+        }
 
         return new DefaultKafkaConsumerFactory<>(
                 config,

@@ -22,12 +22,30 @@ public class KafkaProducerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServer;
 
+    @Value("${spring.kafka.properties.security.protocol}")
+    private String securityProtocol;
+
+    @Value("${spring.kafka.properties.sasl.mechanism}")
+    private String saslMechanism;
+
+    @Value("${spring.kafka.properties.sasl.jaas.config}")
+    private String saslJaasConfig;
+
     @Bean
     public ProducerFactory<String, EventDTO> eventProducerFactory(){
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        if (securityProtocol != null && !securityProtocol.isEmpty()) {
+            config.put("security.protocol", securityProtocol);
+        }
+        if (saslMechanism != null && !saslMechanism.isEmpty()) {
+            config.put("sasl.mechanism", saslMechanism);
+        }
+        if (saslJaasConfig != null && !saslJaasConfig.isEmpty()) {
+            config.put("sasl.jaas.config", saslJaasConfig);
+        }
 
         return new DefaultKafkaProducerFactory<>(config);
     }
