@@ -50,7 +50,7 @@ public class KafkaProducerConfig {
             config.put("sasl.jaas.config", saslJaasConfig);
         }
 
-        log.info("Kafka Bootstrap={}", bootstrapServers);
+        log.info("Kafka Bootstrap={}", bootstrapServer);
         log.info("Kafka Security Protocol={}", securityProtocol);
         log.info("Kafka SASL Mechanism={}", saslMechanism);
         log.info("Kafka JAAS Present={}", saslJaasConfig != null && !saslJaasConfig.isBlank());
