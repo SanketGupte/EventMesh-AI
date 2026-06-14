@@ -1,16 +1,30 @@
 spring:
   datasource:
+    # allow overriding via environment variables for local/dev convenience
     url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+    hikari:
+      initialization-fail-timeout: 30000
 
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:eventmesh-routing-group-v2}
+      auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
+    properties:
+      security.protocol: ${KAFKA_SECURITY_PROTOCOL}
+      sasl.mechanism: ${KAFKA_SASL_MECHANISM}
+      sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG}
 
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: update
+    # Explicit dialect to avoid Hibernate boot-time failure when DB is temporarily unavailable
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
 
 logging:
   level:
