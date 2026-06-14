@@ -57,10 +57,10 @@ public class KafkaConsumerConfig {
             config.put("sasl.jaas.config", saslJaasConfig);
         }
 
-        log.info("Kafka Bootstrap: {}", bootstrapServer);
-        log.info("Kafka Security Protocol: {}", securityProtocol);
-        log.info("Kafka SASL Mechanism: {}", saslMechanism);
-        log.info("Kafka JAAS Config Present: {}", !saslJaasConfig.isBlank());
+        log.info("Kafka Bootstrap={}", bootstrapServers);
+        log.info("Kafka Security Protocol={}", securityProtocol);
+        log.info("Kafka SASL Mechanism={}", saslMechanism);
+        log.info("Kafka JAAS Present={}", saslJaasConfig != null && !saslJaasConfig.isBlank());
 
         return new DefaultKafkaConsumerFactory<>(
                 config,
